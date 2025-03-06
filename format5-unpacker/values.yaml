@@ -1,0 +1,50 @@
+#args:
+#  - -syslog_output=false
+#  - -consul_addr=consul-server:8500
+
+image:
+  repository: jfrog.equifax.local/docker-devops/format5-unpacker
+  tag: latest
+
+replicas: 1
+kubernetesClusterDomain: cluster.local
+
+affinity:
+  podAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+                - bkiarch
+        topologyKey: kubernetes.io/hostname
+
+additionalVolumes:
+  - name: u01
+    persistentVolumeClaim:
+      claimName: u01
+  - name: u02
+    persistentVolumeClaim:
+      claimName: u02
+  - name: u03
+    persistentVolumeClaim:
+      claimName: u03
+  - name: crypto-socket
+    persistentVolumeClaim:
+      claimName: crypto-socket
+  - name: arch-socket
+    persistentVolumeClaim:
+      claimName: arch-socket
+
+additionalVolumeMounts:
+  - mountPath: /u01/
+    name: u01
+  - mountPath: /u02/
+    name: u02
+  - mountPath: /u03/
+    name: u03
+  - mountPath: /var/run/crypto-service/
+    name: crypto-socket
+  - mountPath: /var/run/arch-service/
+    name: arch-socket

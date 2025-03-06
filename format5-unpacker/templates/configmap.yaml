@@ -1,0 +1,132 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "format5-unpacker.fullname" . }}
+  labels:
+  {{- include "format5-unpacker.labels" . | nindent 4 }}
+data:
+  default.yml: |-
+    ---
+    logger:
+    level: debug
+    output: [ stdout ]
+    
+    metrics:
+      port:
+      prefix: format5
+      consul_address:
+    
+    centerPoint:
+      url: center-point:10000
+      poolSize: 100
+      retries: 3
+    
+    totalConf:
+      host: total-connector
+      port: 8891
+      username: Admin
+      password: admin
+      limit: 100
+      retries: 32
+    
+    db_bki:
+      Driver: mysql
+      host: {{ .Release.Namespace }}-my-dbgpcs-mariadb.kube-data
+      port: "3306"
+      database: dbgpcs
+      username: "root"
+      password: "password"
+      limit: 20
+      retries: 3
+    
+    requests:
+      Driver: postgres
+      host: {{ .Release.Namespace }}-pg-requests-postgresql.kube-data
+      port: "5432"
+      database: "request"
+      username: "postgres"
+      password: "2848596t"
+      limit: 100
+    
+    fdb:
+      url: fdb-connector:3333
+      username: admin
+      password: admin
+      limit: 100
+    
+    tpq:
+      Driver: postgres
+      host: {{ .Release.Namespace }}-pg-tpq-postgresql.kube-data
+      port: "5432"
+      dbName: tpq
+      user: "postgres"
+      password: "2848596t"
+      connectionLimit: 30
+    
+    bcq:
+      Driver: postgres
+      host: {{ .Release.Namespace }}-pg-bcq-postgresql.kube-data
+      port: "5432"
+      dbName: bcq
+      user: "postgres"
+      password: "2848596t"
+      connectionLimit: 30
+    
+    brq:
+      Driver: postgres
+      host: {{ .Release.Namespace }}-pg-brq-postgresql.kube-data
+      port: "5432"
+      dbName: brq
+      user: "postgres"
+      password: "2848596t"
+      connectionLimit: 30
+    
+    loadq:
+      Driver: postgres
+      host: {{ .Release.Namespace }}-pg-loadq-postgresql.kube-data
+      port: "5432"
+      dbName: loadq
+      user: "postgres"
+      password: "2848596t"
+      connectionLimit: 30
+    
+    crypto:
+      socket: /var/run/crypto-service/crypto-service.sock
+      keyPath: /var/lib/crypto-service/keys
+      openCerts: /var/lib/crypto-service/keys/open_certs
+      countThread: 20
+      shaKey: c2e95466d42ac3cca4b4330f39cd660c7cb0c957
+      keys:
+        - u31
+    
+    Schemas:
+      Rnc: /u01/src/format5-unpacker/schemas/main.rnc
+    
+    Arch:
+      Socket: /var/run/arch-service/arch.sock
+    
+    Dirs:
+      Xsd: /u01/src/format5-unpacker/schemas/xsd/v10
+      TmpDir: /u03/tmp
+      EncFilesDir: /u03/tmp/enc
+      SgnFilesDir: /u03/tmp/sgn
+      ZipFilesDir: /u03/tmp/zip
+      XmlFilesDir: /u03/tmp/xml
+      LogFilesDir: /u03/gpcs/upload/outbox
+      ForParseDir: /u03/gpcs/upload/FCH5_parsing
+      BufParseDir: /u03/gpcs/upload
+    
+    MaxParallelUnpackFiles: 1
+    MaxParallelLoader: 1
+    
+    secret_box:
+      password128: "1234567890123456"
+      password256: "12345678901234561234567890123456"
+      nonce: "123456789012345678901234"
+    
+    Mailer:
+      Admins:
+        - "kgi@scoring.ru"
+      From: noreply@scoring.ru
+      Host: "smtp-o.equifax.local"
+      Port: "25"

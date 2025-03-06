@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "format5-unpacker.fullname" . }}
+  labels:
+  {{- include "format5-unpacker.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+    {{- include "format5-unpacker.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+      {{- include "format5-unpacker.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- if .Values.affinity }}
+      affinity:
+        {{- toYaml .Values.affinity | nindent 8 }}
+      {{- end }}
+      containers:
+      {{- if .Values.args }}
+        args: {{- toYaml .Values.args | nindent 8 }}
+      {{- end }}
+      - name: format5-unpacker
+        env:
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 9443
+        - containerPort: 9083
+        resources: {}
+        volumeMounts:
+        - mountPath: /etc/equ/format5unpacker
+          name: format5-unpacker-config-vol
+        {{- toYaml  .Values.additionalVolumeMounts | nindent 8 }}
+      volumes:
+      - configMap:
+          items:
+          - key: default.yml
+            path: default.yml
+          name: {{ include "format5-unpacker.fullname" . }}
+        name: format5-unpacker-config-vol
+      {{- toYaml  .Values.additionalVolumes | nindent 6 }}
